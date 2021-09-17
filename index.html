@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alarma</title>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Roboto;
+        width: 100vw;
+        height: 100vh;
+        display: grid;
+        place-content: center;
+        background-color: #121212;
+        color: #fff;
+      }
+
+      body.connect {
+        background-color: #10ff00;
+      }
+
+      body.disconnect {
+        background-color: #d10909;
+      }
+
+      button {
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid #000;
+        margin: 1rem 0.5rem;
+        cursor: pointer;
+        background-color: #232323;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: white;
+      }
+    </style>
+  </head>
+  <body class="disconnect">
+    <h1 id="statusNet">Sistema apagado....</h1>
+
+    <button id="start">Comenzar</button>
+    <button id="stopPause">Apagar</button>
+
+    <script>
+      const $audio = new Audio("./siren3.mp3");
+      $audio.preload = true;
+      $audio.loop = true;
+
+      start.addEventListener("click", init);
+      stopPause.addEventListener("click", (evt) => {
+        location.reload();
+      });
+
+      window.addEventListener("online", isConnect);
+      window.addEventListener("offline", isDisconnect);
+
+      function alarmPlay() {
+        $audio.play();
+      }
+
+      function alarmStop() {
+        $audio.currentTime = 0;
+        $audio.pause();
+      }
+
+      function init() {
+        // initSound();
+
+        if (window.navigator.onLine == true) {
+          console.log("Hay internet");
+          isConnect();
+          procedureNetwork();
+        } else {
+          isDisconnect();
+          procedureNetwork();
+        }
+      }
+
+      function procedureNetwork() {
+        setInterval(checkNetwork, 1_000);
+      }
+
+      async function checkNetwork() {
+        try {
+          let res = await fetch("https://jsonplaceholder.typicode.com/posts/1");
+          //   console.log("Respuesta", res);
+
+          if (!res.ok) {
+            throw new Error(res.status);
+          }
+
+          isConnect();
+        } catch (err) {
+          console.error("Ocurrio un error:", err);
+          isDisconnect();
+        }
+      }
+
+      function isConnect() {
+        statusNet.textContent = "Hay Internet";
+        document.body.classList.add("connect");
+        document.body.classList.remove("disconnect");
+        console.log("Hay internet");
+        alarmStop();
+      }
+
+      function isDisconnect() {
+        statusNet.textContent = "No hay Internet";
+        document.body.classList.add("disconnect");
+        document.body.classList.remove("connect");
+        console.log("No hay internet");
+        alarmPlay();
+      }
+    </script>
+  </body>
+</html>
